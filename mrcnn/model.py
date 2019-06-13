@@ -1219,13 +1219,11 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
         mode=config.IMAGE_RESIZE_MODE)
     mask = utils.resize_mask(mask, scale, padding, crop)
 
-    # Random horizontal flips.
-    # TODO: will be removed in a future update in favor of augmentation
+
+    # Used for extra augmentation stuff impossible with imgaug
     if augment:
-        logging.warning("'augment' is deprecated. Use 'augmentation' instead.")
-        if random.randint(0, 1):
-            image = np.fliplr(image)
-            mask = np.fliplr(mask)
+        if np.random.random() < 0.66:
+            image, mask = augment(image, mask)
 
     # Augmentation
     # This requires the imgaug lib (https://github.com/aleju/imgaug)
@@ -2274,7 +2272,7 @@ class MaskRCNN():
             "*epoch*", "{epoch:04d}")
 
     def train(self, train_dataset, val_dataset, learning_rate, epochs, layers,
-              augmentation=None, custom_callbacks=None, no_augmentation_sources=None):
+              augmentation=None, custom_aug=None, custom_callbacks=None, no_augmentation_sources=None):
         """Train the model.
         train_dataset, val_dataset: Training and validation Dataset objects.
         learning_rate: The learning rate to train with
@@ -2327,7 +2325,8 @@ class MaskRCNN():
         train_generator = data_generator(train_dataset, self.config, shuffle=True,
                                          augmentation=augmentation,
                                          batch_size=self.config.BATCH_SIZE,
-                                         no_augmentation_sources=no_augmentation_sources)
+                                         no_augmentation_sources=no_augmentation_sources,
+                                         augment=custom_aug)
         val_generator = data_generator(val_dataset, self.config, shuffle=True,
                                        batch_size=self.config.BATCH_SIZE)
 
