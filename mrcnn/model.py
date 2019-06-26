@@ -1222,8 +1222,9 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
 
     # Used for extra augmentation stuff impossible with imgaug
     if augment:
-        if np.random.random() < 0.66:
+        if np.random.random() < 0.1:
             image, mask = augment(image, mask)
+
 
     # Augmentation
     # This requires the imgaug lib (https://github.com/aleju/imgaug)
