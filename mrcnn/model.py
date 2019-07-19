@@ -1194,9 +1194,19 @@ def mrcnn_mask_loss_graph(target_masks, target_class_ids, pred_masks):
     return loss
 
 def mrcnn_image_class_loss_graph(target_classes, pred_classes):
+
+    one_weight = 2.0
+    zero_weight = 0.1
+
     target_classes = tf.cast(target_classes, 'float32')
-    loss = K.mean(K.binary_crossentropy(target=target_classes, output=pred_classes))
-    return loss
+    b_ce = K.binary_crossentropy(target=target_classes, output=pred_classes)
+
+    weight_vector = target_classes * one_weight + (1. - target_classes) * zero_weight
+    weighted_b_ce = weight_vector * b_ce
+
+    # Return the mean error
+    return K.mean(weighted_b_ce)
+
 
 
 ############################################################
