@@ -1701,7 +1701,11 @@ class DataGenerator(keras.utils.Sequence):
         return int(np.ceil(len(self.image_ids) / float(self.batch_size)))
 
     def __getitem__(self, idx):
-        return self.data_generator( self.image_ids[idx*self.batch_size:(idx+1)*self.batch_size] )
+        offset = 0
+        if (idx+1)*self.batch_size >= len(self.image_ids):
+            # Offset the ids
+            offset = (idx+1)*self.batch_size - len(self.image_ids)
+        return self.data_generator( self.image_ids[idx*self.batch_size-offset:(idx+1)*self.batch_size-offset] )
     
     def data_generator(self,image_ids):
         b=0
