@@ -1222,9 +1222,7 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
 
     # Used for extra augmentation stuff impossible with imgaug
     if augment:
-        if np.random.random() < 0.1:
-            image, mask = augment(image, mask)
-
+        image, mask = augment(image, mask)
 
     # Augmentation
     # This requires the imgaug lib (https://github.com/aleju/imgaug)
@@ -1256,6 +1254,11 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
         assert mask.shape == mask_shape, "Augmentation shouldn't change mask size"
         # Change mask back to bool
         mask = mask.astype(np.bool)
+
+    # Add extra channels
+    original_dtype = image.dtype
+    image = dataset.load_extra_image_channels(image)
+    image = image.astype(original_dtype)
 
     # Note that some boxes might be all zeros if the corresponding mask got cropped out.
     # and here is to filter them out
